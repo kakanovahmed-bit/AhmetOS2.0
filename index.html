@@ -334,5 +334,206 @@ document.querySelectorAll('#appGrid button').forEach(btn=>{
 });
 }
 </script>
+<!-- ==========================================
+    AHMETOS BUILT-IN WEB BROWSER
+========================================== -->
+<style>
+#browser {
+ width: min(1050px, 96vw);
+ height: min(700px, 82vh);
+}
+#browser .browser-toolbar {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ padding: 10px;
+ background: #e5e5e5;
+}
+#browser .browser-toolbar button,
+#browser .browser-shortcuts button {
+ border: 0;
+ padding: 9px 13px;
+ border-radius: 7px;
+ background: #d5d5d5;
+ cursor: pointer;
+}
+#browser .browser-toolbar button:hover,
+#browser .browser-shortcuts button:hover {
+ background: #bdbdbd;
+}
+#browserAddress {
+ flex: 1;
+ min-width: 0;
+}
+#browser .browser-shortcuts {
+ display: flex;
+ gap: 7px;
+ padding: 8px 10px;
+ overflow-x: auto;
+ background: #eee;
+}
+#browserMessage {
+ height: calc(100% - 115px);
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ text-align: center;
+ padding: 25px;
+ background: #f7f7f7;
+ color: #333;
+}
+#browserMessage p {
+ color: #666;
+}
+#browserFrame {
+ display: none;
+ width: 100%;
+ height: calc(100% - 115px);
+ border: 0;
+ background: white;
+}
+</style>
+<!-- BROWSER WINDOW -->
+<div class="window" id="browser">
+<div class="titlebar">
+   🌐 AhmetOS Browser
+<button class="close" onclick="closeApp('browser')">✕</button>
+</div>
+<div class="browser-toolbar">
+<button onclick="browserBack()">←</button>
+<button onclick="browserForward()">→</button>
+<button onclick="browserRefresh()">↻</button>
+<button onclick="browserHome()">⌂</button>
+<input
+     id="browserAddress"
+     placeholder="Search or enter a website..."
+     onkeydown="if(event.key==='Enter')browserGo()"
+>
+<button onclick="browserGo()">Go</button>
+</div>
+<div class="browser-shortcuts">
+<button onclick="browserSearch('google')">Google</button>
+<button onclick="browserSearch('duckduckgo')">DuckDuckGo</button>
+<button onclick="browserSearch('brave')">Brave</button>
+<button onclick="browserSearch('bing')">Bing</button>
+<button onclick="browserSearch('ecosia')">Ecosia</button>
+<button onclick="browserSearch('yahoo')">Yahoo</button>
+</div>
+<div id="browserMessage">
+<h2>🌐 Welcome to AhmetOS Browser</h2>
+<p>Your own built-in web browsing experience.</p>
+<p>Choose a search engine or enter a website above.</p>
+</div>
+<iframe
+   id="browserFrame"
+   title="AhmetOS Browser"
+   sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+   referrerpolicy="strict-origin-when-cross-origin">
+</iframe>
+</div>
+<!-- DESKTOP ICON -->
+<div class="icon" onclick="openApp('browser')">
+<span>🌐</span>
+ Browser
+</div>
+<!-- START MENU BUTTON -->
+<button onclick="openApp('browser')">
+<span>🌐</span>Browser
+</button>
+<!-- TASKBAR BUTTON -->
+<button class="taskbtn" onclick="openApp('browser')">🌐</button>
+<script>
+// ==========================================
+// AHMETOS BROWSER ENGINE
+// ==========================================
+let browserHistory = [];
+let browserIndex = -1;
+const browserEngines = {
+ google: "https://www.google.com/search?q=",
+ duckduckgo: "https://duckduckgo.com/?q=",
+ brave: "https://search.brave.com/search?q=",
+ bing: "https://www.bing.com/search?q=",
+ ecosia: "https://www.ecosia.org/search?q=",
+ yahoo: "https://search.yahoo.com/search?p="
+};
+function browserNavigate(url, save = true) {
+ const frame = document.getElementById("browserFrame");
+ const message = document.getElementById("browserMessage");
+ const address = document.getElementById("browserAddress");
+ try {
+   const parsed = new URL(url);
+   if (!["http:", "https:"].includes(parsed.protocol)) {
+     throw new Error("Invalid address");
+   }
+   url = parsed.href;
+   if (save) {
+     browserHistory = browserHistory.slice(0, browserIndex + 1);
+     browserHistory.push(url);
+     browserIndex++;
+   }
+   address.value = url;
+   message.style.display = "none";
+   frame.style.display = "block";
+   frame.src = url;
+ } catch (error) {
+   frame.style.display = "none";
+   message.style.display = "flex";
+   message.innerHTML =
+     "<h2>Invalid website address</h2>" +
+     "<p>Please enter a valid website.</p>";
+ }
+}
+function browserGo() {
+ let value = document
+   .getElementById("browserAddress")
+   .value.trim();
+ if (!value) return;
+ if (!/^https?:\/\//i.test(value)) {
+   if (value.includes(".") && !value.includes(" ")) {
+     value = "https://" + value;
+   } else {
+     value = browserEngines.google + encodeURIComponent(value);
+   }
+ }
+ browserNavigate(value);
+}
+function browserSearch(engine) {
+ const query = prompt("What would you like to search for?");
+ if (!query) return;
+ browserNavigate(
+   browserEngines[engine] + encodeURIComponent(query)
+ );
+}
+function browserBack() {
+ if (browserIndex > 0) {
+   browserIndex--;
+   browserNavigate(browserHistory[browserIndex], false);
+ }
+}
+function browserForward() {
+ if (browserIndex < browserHistory.length - 1) {
+   browserIndex++;
+   browserNavigate(browserHistory[browserIndex], false);
+ }
+}
+function browserRefresh() {
+ const frame = document.getElementById("browserFrame");
+ if (frame.src) {
+   frame.src = frame.src;
+ }
+}
+function browserHome() {
+ document.getElementById("browserFrame").style.display = "none";
+ document.getElementById("browserAddress").value = "";
+ const message = document.getElementById("browserMessage");
+ message.style.display = "flex";
+ message.innerHTML =
+   "<h2>🌐 Welcome to AhmetOS Browser</h2>" +
+   "<p>Your own built-in web browsing experience.</p>" +
+   "<p>Choose a search engine or enter a website above.</p>";
+}
+</script>
+<!-- END AHMETOS BROWSER -->
 </body>
 </html>
