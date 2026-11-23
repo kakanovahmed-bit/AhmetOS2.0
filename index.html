@@ -78,6 +78,10 @@ padding:12px 22px;font-weight:bold;width:100%
 <div class="icon" onclick="openApp('calculator')"><span>🧮</span>Calculator</div>
 <div class="icon" onclick="openApp('calendar')"><span>📅</span>Calendar</div>
 <div class="icon" onclick="openApp('tasks')"><span>✅</span>Tasks</div>
+<div class="desktop-icon" onclick="openRoblox()">
+<div class="icon">🎮</div>
+<span>Roblox</span>
+</div>
 <div class="icon" onclick="openApp('spotify')"><span>🎵</span>Spotify</div>
 <div class="desktop-icon" onclick="openApp('browser')">
 <div class="icon">🌐</div>
@@ -539,5 +543,91 @@ function browserHome() {
 }
 </script>
 <!-- END AHMETOS BROWSER -->
+<style>
+#robloxApp {
+ display: none;
+ position: fixed;
+ inset: 0;
+ z-index: 99999;
+ background: #111;
+ color: white;
+ font-family: Arial, sans-serif;
+}
+#robloxApp.active {
+ display: flex;
+ flex-direction: column;
+}
+#robloxApp header {
+ height: 55px;
+ background: #202020;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 0 18px;
+}
+#robloxApp button {
+ background: #333;
+ color: white;
+ border: 0;
+ border-radius: 8px;
+ padding: 10px 15px;
+ cursor: pointer;
+}
+#robloxApp iframe {
+ flex: 1;
+ width: 100%;
+ border: none;
+ background: white;
+}
+.roblox-launch {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ flex: 1;
+ text-align: center;
+ gap: 15px;
+}
+.roblox-launch h1 {
+ font-size: 42px;
+ margin: 0;
+}
+.roblox-launch a {
+ background: white;
+ color: black;
+ text-decoration: none;
+ padding: 14px 28px;
+ border-radius: 9px;
+ font-weight: bold;
+}
+</style>
+<div id="robloxApp">
+<header>
+<strong>🎮 Roblox</strong>
+<div>
+<button onclick="closeRoblox()">⌂ Home</button>
+<button onclick="closeRoblox()">✕ Close</button>
+</div>
+</header>
+<div class="roblox-launch">
+<h1>ROBLOX</h1>
+<p>Your Roblox experience starts here.</p>
+<a href="https://www.roblox.com/" target="_blank"
+      rel="noopener noreferrer">
+      Open Roblox
+</a>
+<p>Gameplay and sign-in use the official Roblox website or app.</p>
+</div>
+</div>
+<script>
+function openRoblox() {
+ document.getElementById("robloxApp")
+   .classList.add("active");
+}
+function closeRoblox() {
+ document.getElementById("robloxApp")
+   .classList.remove("active");
+}
+</script>
 </body>
 </html>
