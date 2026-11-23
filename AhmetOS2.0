@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AhmetOS</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;font-family:"Segoe UI",Arial,sans-serif;
+background:linear-gradient(135deg,#142d57,#397bb5,#8b76bd);
+height:100vh;overflow:hidden;color:white
+}
+#desktop{height:calc(100vh - 55px);padding:18px;display:flex;flex-direction:column;align-items:flex-start;gap:18px;flex-wrap:wrap;align-content:flex-start}
+.icon{
+width:85px;text-align:center;padding:10px 4px;
+cursor:pointer;border-radius:9px;font-size:13px
+}
+.icon:hover{background:#ffffff30}
+.icon span{font-size:34px;display:block;margin-bottom:6px}
+#taskbar{
+position:fixed;bottom:0;width:100%;height:55px;
+background:#17263acc;backdrop-filter:blur(20px);
+display:flex;align-items:center;justify-content:center;gap:12px
+}
+.taskbtn{border:0;background:transparent;color:white;font-size:23px;cursor:pointer;padding:8px;border-radius:8px}
+.taskbtn:hover{background:#ffffff30}
+#clock{position:absolute;right:18px;font-size:12px;text-align:right}
+#startMenu{
+display:none;position:fixed;bottom:65px;left:50%;
+transform:translateX(-50%);width:min(430px,94vw);
+background:#24364feF;backdrop-filter:blur(25px);
+border:1px solid #ffffff35;border-radius:15px;padding:20px;
+box-shadow:0 15px 40px #0007
+}
+#startMenu input{width:100%;padding:12px;border:0;border-radius:8px;margin-bottom:18px}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.apps button{background:transparent;color:white;border:0;padding:14px 5px;border-radius:9px;cursor:pointer}
+.apps button:hover{background:#ffffff25}
+.apps span{display:block;font-size:28px;margin-bottom:5px}
+.window{
+display:none;position:fixed;top:12%;left:50%;
+transform:translateX(-50%);width:min(650px,94vw);
+height:min(500px,75vh);background:#f5f5f5;color:#222;
+border-radius:12px;overflow:hidden;box-shadow:0 15px 50px #0008;
+z-index:10
+}
+.titlebar{
+height:43px;background:#e7e7e7;padding:10px 14px;
+display:flex;justify-content:space-between;align-items:center;
+cursor:move;font-weight:600
+}
+.close{border:0;background:#d9534f;color:white;border-radius:5px;padding:5px 10px;cursor:pointer}
+.content{padding:18px;height:calc(100% - 43px);overflow:auto}
+textarea{width:100%;height:90%;resize:none;border:0;outline:0;font:16px Arial;background:transparent}
+button{cursor:pointer}
+input,select{padding:10px;border-radius:6px;border:1px solid #ccc}
+.action{padding:10px 15px;border:0;border-radius:7px;background:#2563eb;color:white;margin:5px}
+#calcDisplay{width:100%;font-size:25px;text-align:right;margin-bottom:10px}
+.calcGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.calcGrid button{padding:17px;border:0;border-radius:7px;background:#ddd;font-size:18px}
+.taskItem{padding:10px;border-bottom:1px solid #ddd}
+#spotifyWindow{background:#121212;color:white}
+#spotifyWindow .titlebar{background:#202020;color:white}
+#spotifyWindow .content{background:#121212}
+#spotifyWindow input{width:100%;background:#282828;color:white;border:1px solid #444;margin:12px 0}
+.spotifyButton{
+background:#1ed760;color:#111;border:0;border-radius:25px;
+padding:12px 22px;font-weight:bold;width:100%
+}
+#spotifyPlayer iframe{width:100%;border:0;border-radius:12px;margin-top:18px}
+</style>
+</head>
+<body>
+<div id="desktop">
+<div class="icon" onclick="openApp('notes')"><span>📝</span>Notes</div>
+<div class="icon" onclick="openApp('files')"><span>📁</span>Files</div>
+<div class="icon" onclick="openApp('calculator')"><span>🧮</span>Calculator</div>
+<div class="icon" onclick="openApp('calendar')"><span>📅</span>Calendar</div>
+<div class="icon" onclick="openApp('tasks')"><span>✅</span>Tasks</div>
+<div class="icon" onclick="openApp('spotify')"><span>🎵</span>Spotify</div>
+<div class="icon" onclick="openApp('settings')"><span>⚙️</span>Settings</div>
+</div>
+<div id="taskbar">
+<button class="taskbtn" onclick="toggleStart()">⊞</button>
+<button class="taskbtn" onclick="openApp('notes')">📝</button>
+<button class="taskbtn" onclick="openApp('files')">📁</button>
+<button class="taskbtn" onclick="openApp('calculator')">🧮</button>
+<button class="taskbtn" onclick="openApp('spotify')">🎵</button>
+<div id="clock"></div>
+</div>
+<div id="startMenu">
+<h2>AhmetOS</h2>
+<input id="search" placeholder="Search applications..." oninput="searchApps()">
+<div class="apps" id="appGrid">
+<button onclick="openApp('notes')"><span>📝</span>Notes</button>
+<button onclick="openApp('files')"><span>📁</span>Files</button>
+<button onclick="openApp('calculator')"><span>🧮</span>Calculator</button>
+<button onclick="openApp('calendar')"><span>📅</span>Calendar</button>
+<button onclick="openApp('tasks')"><span>✅</span>Tasks</button>
+<button onclick="openApp('spotify')"><span>🎵</span>Spotify</button>
+<button onclick="openApp('settings')"><span>⚙️</span>Settings</button>
+</div>
+</div>
+<!-- NOTES -->
+<div class="window" id="notes">
+<div class="titlebar">📝 Notes <button class="close" onclick="closeApp('notes')">✕</button></div>
+<div class="content">
+<textarea id="notesText" placeholder="Write your notes here..."></textarea>
+</div>
+</div>
+<!-- FILE EXPLORER -->
+<div class="window" id="files">
+<div class="titlebar">📁 File Explorer <button class="close" onclick="closeApp('files')">✕</button></div>
+<div class="content">
+<h2>Quick Access</h2>
+<p>📁 Documents</p><p>📁 Downloads</p><p>🖼️ Pictures</p><p>🎵 Music</p>
+<p style="color:#777">This is a visual mockup, not access to your computer's files.</p>
+</div>
+</div>
+<!-- CALCULATOR -->
+<div class="window" id="calculator">
+<div class="titlebar">🧮 Calculator <button class="close" onclick="closeApp('calculator')">✕</button></div>
+<div class="content">
+<input id="calcDisplay" readonly value="0">
+<div class="calcGrid">
+<button onclick="calcClear()">C</button>
+<button onclick="calcAdd('/')">÷</button>
+<button onclick="calcAdd('*')">×</button>
+<button onclick="calcAdd('-')">−</button>
+<button onclick="calcAdd('7')">7</button>
+<button onclick="calcAdd('8')">8</button>
+<button onclick="calcAdd('9')">9</button>
+<button onclick="calcAdd('+')">+</button>
+<button onclick="calcAdd('4')">4</button>
+<button onclick="calcAdd('5')">5</button>
+<button onclick="calcAdd('6')">6</button>
+<button onclick="calcAdd('1')">1</button>
+<button onclick="calcAdd('2')">2</button>
+<button onclick="calcAdd('3')">3</button>
+<button onclick="calcAdd('0')">0</button>
+<button onclick="calcAdd('.')">.</button>
+<button onclick="calculate()" style="background:#2563eb;color:white">=</button>
+</div>
+</div>
+</div>
+<!-- CALENDAR -->
+<div class="window" id="calendar">
+<div class="titlebar">📅 Calendar <button class="close" onclick="closeApp('calendar')">✕</button></div>
+<div class="content">
+<h2 id="calendarDate"></h2>
+<p id="calendarFull"></p>
+</div>
+</div>
+<!-- TASKS -->
+<div class="window" id="tasks">
+<div class="titlebar">✅ Tasks <button class="close" onclick="closeApp('tasks')">✕</button></div>
+<div class="content">
+<h2>My Tasks</h2>
+<input id="taskInput" placeholder="Add a task...">
+<button class="action" onclick="addTask()">Add</button>
+<div id="taskList"></div>
+</div>
+</div>
+<!-- SPOTIFY -->
+<div class="window" id="spotify">
+<div class="titlebar">🎵 Spotify Music <button class="close" onclick="closeApp('spotify')">✕</button></div>
+<div class="content">
+<h2 style="color:#1ed760">Spotify</h2>
+<p>Play your favorite songs, albums, and playlists.</p>
+<input id="spotifyLink" placeholder="Paste Spotify song or playlist link">
+<button class="spotifyButton" onclick="loadSpotify()">Load Spotify</button>
+<div id="spotifyPlayer">
+<p style="color:#aaa">Your Spotify player will appear here.</p>
+</div>
+<p style="font-size:12px;color:#aaa;margin-top:20px">
+  Spotify playback may require login or Premium depending on the content and account.
+</p>
+<button class="action" onclick="window.open('https://open.spotify.com','_blank')">Open Spotify Website ↗</button>
+</div>
+</div>
+<!-- SETTINGS -->
+<div class="window" id="settings">
+<div class="titlebar">⚙️ Settings <button class="close" onclick="closeApp('settings')">✕</button></div>
+<div class="content">
+<h2>Personalization</h2>
+<p>Choose your desktop background:</p>
+<button class="action" onclick="changeWallpaper(1)">Blue</button>
+<button class="action" onclick="changeWallpaper(2)">Purple</button>
+<button class="action" onclick="changeWallpaper(3)">Dark</button>
+<hr>
+<h2>About AhmetOS</h2>
+<p>AhmetOS Version 3.0</p>
+<p>A personal desktop experience.</p>
+</div>
+</div>
+<script>
+// APP MANAGEMENT
+function openApp(id){
+document.getElementById(id).style.display='block';
+document.getElementById('startMenu').style.display='none';
+}
+function closeApp(id){
+document.getElementById(id).style.display='none';
+}
+function toggleStart(){
+const menu=document.getElementById('startMenu');
+menu.style.display=menu.style.display==='block'?'none':'block';
+}
+// DRAGGABLE WINDOWS
+document.querySelectorAll('.window').forEach(win=>{
+const bar=win.querySelector('.titlebar');
+let dragging=false,offsetX=0,offsetY=0;
+bar.addEventListener('mousedown',e=>{
+ if(e.target.tagName==='BUTTON')return;
+ dragging=true;
+ const rect=win.getBoundingClientRect();
+ win.style.transform='none';
+ win.style.left=rect.left+'px';
+ win.style.top=rect.top+'px';
+ offsetX=e.clientX-rect.left;
+ offsetY=e.clientY-rect.top;
+});
+document.addEventListener('mousemove',e=>{
+ if(!dragging)return;
+ win.style.left=Math.max(0,Math.min(innerWidth-win.offsetWidth,e.clientX-offsetX))+'px';
+ win.style.top=Math.max(0,Math.min(innerHeight-win.offsetHeight-55,e.clientY-offsetY))+'px';
+});
+document.addEventListener('mouseup',()=>dragging=false);
+});
+// CLOCK
+function updateClock(){
+const now=new Date();
+document.getElementById('clock').innerHTML=
+now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+
+'<br>'+now.toLocaleDateString();
+}
+setInterval(updateClock,1000);
+updateClock();
+// NOTES AUTOSAVE
+const notesText=document.getElementById('notesText');
+notesText.value=localStorage.getItem('ahmetNotes')||'';
+notesText.addEventListener('input',()=>{
+localStorage.setItem('ahmetNotes',notesText.value);
+});
+// CALCULATOR
+function calcAdd(v){
+const d=document.getElementById('calcDisplay');
+if(d.value==='0')d.value='';
+d.value+=v;
+}
+function calcClear(){
+document.getElementById('calcDisplay').value='0';
+}
+function calculate(){
+const d=document.getElementById('calcDisplay');
+try{
+ if(!/^[0-9+\-*/.() ]+$/.test(d.value))throw Error();
+ const result=Function('"use strict";return ('+d.value+')')();
+ d.value=Number.isFinite(result)?result:'Error';
+}catch(e){d.value='Error'}
+}
+// TASKS AUTOSAVE
+let tasks=JSON.parse(localStorage.getItem('ahmetTasks')||'[]');
+function renderTasks(){
+document.getElementById('taskList').innerHTML='';
+tasks.forEach((task,index)=>{
+ const item=document.createElement('div');
+ item.className='taskItem';
+ const label=document.createElement('span');
+ label.textContent=(task.done?'✓ ':'')+task.text;
+ if(task.done)label.style.textDecoration='line-through';
+ const done=document.createElement('button');
+ done.textContent='✓';
+ done.style.marginLeft='10px';
+ done.onclick=()=>{tasks[index].done=!tasks[index].done;saveTasks()};
+ const remove=document.createElement('button');
+ remove.textContent='✕';
+ remove.style.marginLeft='5px';
+ remove.onclick=()=>{tasks.splice(index,1);saveTasks()};
+ item.append(label,done,remove);
+ document.getElementById('taskList').appendChild(item);
+});
+}
+function addTask(){
+const input=document.getElementById('taskInput');
+if(!input.value.trim())return;
+tasks.push({text:input.value.trim(),done:false});
+input.value='';
+saveTasks();
+}
+function saveTasks(){
+localStorage.setItem('ahmetTasks',JSON.stringify(tasks));
+renderTasks();
+}
+renderTasks();
+// CALENDAR
+const now=new Date();
+document.getElementById('calendarDate').textContent=
+now.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+document.getElementById('calendarFull').textContent=
+now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+// SPOTIFY PLAYER
+function loadSpotify(){
+const link=document.getElementById('spotifyLink').value.trim();
+const player=document.getElementById('spotifyPlayer');
+const match=link.match(/open\.spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
+if(!match){
+ player.textContent='Please paste a valid Spotify song, album, or playlist link.';
+ return;
+}
+player.innerHTML='';
+const iframe=document.createElement('iframe');
+iframe.src='https://open.spotify.com/embed/'+match[1]+'/'+match[2]+'?utm_source=generator';
+iframe.height='352';
+iframe.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+iframe.loading='lazy';
+player.appendChild(iframe);
+}
+// WALLPAPERS
+function changeWallpaper(n){
+const backgrounds={
+ 1:'linear-gradient(135deg,#142d57,#397bb5,#8b76bd)',
+ 2:'linear-gradient(135deg,#302060,#8148a9,#d18bc1)',
+ 3:'linear-gradient(135deg,#101010,#303030,#171d30)'
+};
+document.body.style.background=backgrounds[n];
+}
+// SEARCH
+function searchApps(){
+const query=document.getElementById('search').value.toLowerCase();
+document.querySelectorAll('#appGrid button').forEach(btn=>{
+ btn.style.display=btn.textContent.toLowerCase().includes(query)?'block':'none';
+});
+}
+</script>
+</body>
+</html>
