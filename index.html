@@ -434,10 +434,10 @@ document.querySelectorAll('#appGrid button').forEach(btn=>{
 <p>Choose a search engine or enter a website above.</p>
 </div>
 <iframe
-   id="browserFrame"
-   title="AhmetOS Browser"
-   sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
-   referrerpolicy="strict-origin-when-cross-origin">
+ id="browserFrame"
+ title="AhmetOS Browser"
+ sandbox="allow-forms allow-scripts allow-same-origin"
+ referrerpolicy="strict-origin-when-cross-origin">
 </iframe>
 </div>
 <!-- DESKTOP ICON -->
@@ -459,7 +459,7 @@ let browserHistory = [];
 let browserIndex = -1;
 const browserEngines = {
  google: "https://www.google.com/search?q=",
- duckduckgo: "https://duckduckgo.com/?q=",
+ duckduckgo: "https://html.duckduckgo.com/html/?q=",
  brave: "https://search.brave.com/search?q=",
  bing: "https://www.bing.com/search?q=",
  ecosia: "https://www.ecosia.org/search?q=",
@@ -488,14 +488,12 @@ function browserNavigate(url, save = true) {
    frame.style.display = "none";
    message.style.display = "flex";
    message.innerHTML =
-     "<h2>Invalid website address</h2>" +
-     "<p>Please enter a valid website.</p>";
+     "<h2>Unable to open this address</h2>" +
+     "<p>Please check the website address and try again.</p>";
  }
 }
 function browserGo() {
- let value = document
-   .getElementById("browserAddress")
-   .value.trim();
+ let value = document.getElementById("browserAddress").value.trim();
  if (!value) return;
  if (!/^https?:\/\//i.test(value)) {
    if (value.includes(".") && !value.includes(" ")) {
@@ -527,9 +525,8 @@ function browserForward() {
 }
 function browserRefresh() {
  const frame = document.getElementById("browserFrame");
- if (frame.src) {
-   frame.src = frame.src;
- }
+ if (frame.src) frame.src = frame.src;
+}
 }
 function browserHome() {
  document.getElementById("browserFrame").style.display = "none";
